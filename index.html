@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>30 Days Study challenge - Leaderboard</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #eef2f3, #8e9eab);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      padding: 30px 20px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      margin: 0;
+      color: #333;
+    }
+
+    #user-count {
+      font-size: 16px;
+      color: #444;
+    }
+
+    #search {
+      width: 100%;
+      max-width: 400px;
+      padding: 12px 15px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      margin-bottom: 25px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      animation: fadeIn 0.4s ease-in-out;
+    }
+
+    th, td {
+      padding: 16px 14px;
+      text-align: left;
+    }
+
+    thead {
+      background-color: #34495e;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    th.sortable {
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+    }
+
+    th.sorted-asc::after {
+      content: " ▲";
+      font-size: 12px;
+    }
+
+    th.sorted-desc::after {
+      content: " ▼";
+      font-size: 12px;
+    }
+
+    tbody tr {
+      transition: background-color 0.2s ease;
+    }
+
+    tbody tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    td a {
+      text-decoration: none;
+      color: #3498db;
+      font-weight: 500;
+    }
+
+    td a:hover {
+      text-decoration: underline;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media screen and (max-width: 600px) {
+      th, td {
+        padding: 12px 8px;
+      }
+
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      #search {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <h1>🏆 30 Day Study Challenge - Leaderboard</h1>
+      <div style="display: flex; align-items: center; gap: 20px;">
+    <div id="user-count"><strong>Total Users:</strong> <span id="user-count-num">0</span></div>
+    <a href="instructions.html" style="text-decoration: none; font-weight: bold; color: #03375a;">📘 Scoring System Guide</a>
+  </div>
+</div>
+
+    <input type="text" id="search" placeholder="🔍 Search users by name..." />
+
+    <table id="user-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th class="sortable" data-key="total Points">Total Points</th>
+          <th class="sortable" data-key="CURRENT STREAK">Current Streak</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Populated via JS -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    let users = [];
+    let filteredUsers = [];
+    let currentSort = { key: null, order: 'asc' };
+
+    function renderTable(data) {
+      const tbody = document.querySelector("#user-table tbody");
+      const userCount = document.getElementById("user-count");
+
+      tbody.innerHTML = "";
+      userCount.textContent = `Total Users: ${data.length}`;
+
+      data.forEach(user => {
+        const name = user["Name "];
+        const points = user["total Points"];
+        const streak = user["CURRENT STREAK"];
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><a href="profile.html?name=${encodeURIComponent(name)}">${name}</a></td>
+          <td>${points}</td>
+          <td>${streak}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function sortData(key) {
+      const order = (currentSort.key === key && currentSort.order === 'asc') ? 'desc' : 'asc';
+      currentSort = { key, order };
+
+      filteredUsers.sort((a, b) => {
+        const valA = a[key] ?? 0;
+        const valB = b[key] ?? 0;
+        return order === 'asc' ? valA - valB : valB - valA;
+      });
+
+      updateSortIndicators();
+      renderTable(filteredUsers);
+    }
+
+    function updateSortIndicators() {
+      const headers = document.querySelectorAll("th.sortable");
+      headers.forEach(header => {
+        header.classList.remove("sorted-asc", "sorted-desc");
+        const key = header.dataset.key;
+        if (key === currentSort.key) {
+          header.classList.add(currentSort.order === 'asc' ? "sorted-asc" : "sorted-desc");
+        }
+      });
+    }
+
+    fetch('data.json')
+  .then(res => res.json())
+  .then(data => {
+    // Sort users by total points descending
+    users = data.sort((a, b) => (b["total Points"] ?? 0) - (a["total Points"] ?? 0));
+    filteredUsers = [...users];
+    currentSort = { key: "total Points", order: "desc" };
+    updateSortIndicators();
+    renderTable(filteredUsers);
+
+        const searchInput = document.getElementById("search");
+        searchInput.addEventListener("input", () => {
+          const query = searchInput.value.toLowerCase();
+          filteredUsers = users.filter(user =>
+            user["Name "]?.toLowerCase().includes(query)
+          );
+
+          if (currentSort.key) {
+            sortData(currentSort.key);
+          } else {
+            renderTable(filteredUsers);
+          }
+        });
+
+        document.querySelectorAll("th.sortable").forEach(header => {
+          header.addEventListener("click", () => {
+            const key = header.dataset.key;
+            sortData(key);
+          });
+        });
+      })
+      .catch(error => {
+        console.error("Error loading data.json:", error);
+      });
+  </script>
+
+</body>
+</html>
