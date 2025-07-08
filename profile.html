@@ -98,8 +98,8 @@
     const progressList = document.getElementById("progress-list");
 
     const progressFiles = [
-      "progress/2025-07-07.json",
-      "progress/2025-07-07 copy.json"
+      "progress/2025-07-06.json",
+      "progress/2025-07-07.json"
       // Add more daily files as you add them
     ];
 
@@ -132,6 +132,7 @@
             const date = file.split("/").pop().split(".")[0];
             entries.push({
               date,
+              day: userData["Day "],
               points: userData["Points Today"],
               streak: userData["Streak"],
               comment: userData["Comment"] || "",
@@ -157,6 +158,7 @@
         div.className = "progress-entry";
         div.innerHTML = `
           <p><strong>Date:</strong> ${entry.date}</p>
+          <p><strong>Day:</strong> ${entry.day}</p>
           <p><strong>Points Today:</strong> ${entry.points}</p>
           <p><strong>Streak:</strong> ${entry.streak}</p>
           <p><strong>Comment:</strong> ${entry.comment}</p>
