@@ -9,7 +9,7 @@ df = pd.read_excel(excel_file, sheet_name="Final-data")  # Load all sheets
 data =  df.to_dict(orient='records')
 
 # Save to JSON
-with open('data.json', 'w') as f:
+with open('progress/2025-07-13.json', 'w') as f:
     json.dump(data, f, indent=4)
 
 xls = pd.ExcelFile(excel_file)
