@@ -5627,10 +5627,10 @@
     {
         "Name ": "Safe-Grapefruit866",
         "Day ": 10,
-        "Points Today": 250,
+        "Points Today": 50,
         "Streak": 10,
         "Comment": "Completed, No. of hours: 2:00",
-        "Bonus Points": 0,
+        "Bonus Points": 200,
         "Admin Note": "50 points for maintaining the streak of 10 days and +200 points for raising the bug :)"
     },
     {
